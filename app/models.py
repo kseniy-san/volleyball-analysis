@@ -1,3 +1,4 @@
+# Импорт библиотек
 from datetime import datetime
 import enum
 from sqlalchemy import (
@@ -6,7 +7,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from app.database import Base
 
-# --- Enum классы (строгие списки значений) ---
+# Значения для Enum
 class VideoStatus(str, enum.Enum):
     uploaded = "uploaded"
     queued = "queued"
@@ -19,7 +20,7 @@ class ServeSide(str, enum.Enum):
     near = "near"
     far = "far"
 
-# --- Модели (Таблицы) ---
+# Таблицы
 
 class User(Base):
     __tablename__ = "users"
@@ -29,7 +30,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связь: один пользователь -> много видео
+    # Связь один ко многом
     videos = relationship("Video", back_populates="user")
 
 class Video(Base):
@@ -45,7 +46,7 @@ class Video(Base):
     status = Column(Enum(VideoStatus), default=VideoStatus.uploaded)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связи
+    # Связи один ко многим
     user = relationship("User", back_populates="videos")
     processing_jobs = relationship("ProcessingJob", back_populates="video")
     rallies = relationship("Rally", back_populates="video")
@@ -61,6 +62,7 @@ class ProcessingJob(Base):
     started_at = Column(DateTime)
     finished_at = Column(DateTime)
 
+    # Связь один ко многом
     video = relationship("Video", back_populates="processing_jobs")
 
 class Rally(Base):
@@ -75,6 +77,7 @@ class Rally(Base):
     end_frame = Column(Integer)
     serve_side = Column(Enum(ServeSide), default=ServeSide.unknown)
 
+    # Связь один ко многом
     video = relationship("Video", back_populates="rallies")
 
 class Detection(Base):
@@ -90,4 +93,5 @@ class Detection(Base):
     h = Column(Float)
     confidence = Column(Float)
 
+    # Связь один ко многом
     video = relationship("Video", back_populates="detections")
